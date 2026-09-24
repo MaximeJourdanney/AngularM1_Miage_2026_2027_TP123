@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../../shared/services/auth.service';
 
@@ -7,11 +7,15 @@ import { AuthService } from '../../shared/services/auth.service';
   templateUrl: './profile-page.html',
   styleUrl: './profile-page.css',
 })
-export class ProfilePageComponent {
+export class ProfilePageComponent implements OnInit {
   readonly auth = inject(AuthService);
   readonly form = new FormGroup({
     name: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
   });
+
+  ngOnInit(): void {
+    this.load();
+  }
 
   load(): void {
     this.auth.profile().subscribe({
