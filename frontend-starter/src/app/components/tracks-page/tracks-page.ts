@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, OnDestroy, signal } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Track } from '../../shared/models/track.model';
 import { TrackService } from '../../shared/services/track.service';
@@ -8,7 +8,7 @@ import { TrackService } from '../../shared/services/track.service';
   templateUrl: './tracks-page.html',
   styleUrl: './tracks-page.css',
 })
-export class TracksPageComponent {
+export class TracksPageComponent implements OnDestroy {
   private readonly service = inject(TrackService);
 
   readonly tracks = signal<Track[]>([]);
@@ -17,6 +17,9 @@ export class TracksPageComponent {
   readonly loading = signal(false);
   readonly audioUrl = signal('');
   readonly title = new FormControl('', { nonNullable: true });
+  readonly uploadLoading = signal(false);
+  readonly uploadError = signal('');
+  readonly uploadSuccess = signal('');
   file?: File;
 
   constructor() {
@@ -24,7 +27,22 @@ export class TracksPageComponent {
   }
 
   choose(event: Event): void {
-    this.file = (event.target as HTMLInputElement).files?.[0];
+    this.uploadError.set('');
+    this.uploadSuccess.set('');
+    const selected = (event.target as HTMLInputElement).files?.[0];
+    if (selected) {
+      if (!selected.type.startsWith('audio/')) {
+        this.uploadError.set('Le fichier doit être un fichier audio.');
+        this.file = undefined;
+        return;
+      }
+      if (selected.size > 25 * 1024 * 1024) {
+        this.uploadError.set('Le fichier ne doit pas dépasser 25 Mo.');
+        this.file = undefined;
+        return;
+      }
+    }
+    this.file = selected;
     console.debug('[TracksPage] Fichier sélectionné', this.file?.name);
   }
 
@@ -50,17 +68,29 @@ export class TracksPageComponent {
   }
 
   upload(): void {
-    if (!this.file) return;
+    if (!this.file || this.uploadLoading()) return;
+
+    this.uploadLoading.set(true);
+    this.uploadError.set('');
+    this.uploadSuccess.set('');
 
     this.service.upload(this.file, this.title.value || this.file.name).subscribe({
       next: (track) => {
         console.debug('[TracksPage] Piste envoyée', track.id);
         this.title.setValue('');
         this.file = undefined;
+        this.uploadLoading.set(false);
+        this.uploadSuccess.set('Fichier envoyé avec succès !');
         this.page.set(1);
         this.load();
+        
+        // Reset file input in HTML (done via two-way or manually, simplest is let user see success message)
       },
-      error: (error) => console.error('[TracksPage] Envoi impossible', error),
+      error: (error) => {
+        console.error('[TracksPage] Envoi impossible', error);
+        this.uploadLoading.set(false);
+        this.uploadError.set(error.error?.message || 'Erreur lors de l\'envoi.');
+      },
     });
   }
 
@@ -74,5 +104,12 @@ export class TracksPageComponent {
       },
       error: (error) => console.error('[TracksPage] Lecture impossible', error),
     });
+  }
+
+  ngOnDestroy(): void {
+    const url = this.audioUrl();
+    if (url) {
+      URL.revokeObjectURL(url);
+    }
   }
 }

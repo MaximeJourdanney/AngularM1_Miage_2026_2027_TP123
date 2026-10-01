@@ -10,7 +10,17 @@
       <h2>Importer</h2>
       <label>Titre<input [formControl]="title" /></label>
       <label>Fichier audio<input type="file" accept="audio/*" (change)="choose($event)" /></label>
-      <button type="button" (click)="upload()" [disabled]="!file">Envoyer</button>
+      
+      @if (uploadError()) {
+        <p class="error">{{ uploadError() }}</p>
+      }
+      @if (uploadSuccess()) {
+        <p class="success">{{ uploadSuccess() }}</p>
+      }
+      
+      <button type="button" (click)="upload()" [disabled]="!file || uploadLoading()">
+        {{ uploadLoading() ? 'Envoi en cours...' : 'Envoyer' }}
+      </button>
     </article>
 
     <article class="card">
