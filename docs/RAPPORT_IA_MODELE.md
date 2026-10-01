@@ -1,4 +1,4 @@
-# Rapport d'usage de l'IA - TP1
+# Rapport d'usage de l'IA
 
 Pour chaque mission, détailler et fournir des explications concernant : objectif; prompt principal; plan proposé par l'agent; vérifications réalisées par le binôme; erreurs ou propositions rejetées; fichiers effectivement modifiés; preuve de fonctionnement; ce que chaque membre sait maintenant expliquer sans l'agent.
 
@@ -51,5 +51,13 @@ sequenceDiagram
     - `app.ts` & `app.html` (Bouton déconnexion, masquage des onglets).
     - `profile-page.ts` & `profile-page.html` (Auto-chargement du profil avec `OnInit`).
     - `auth.interceptor.ts` (Gestion des 401 et redirection via Router).
-*   **Preuve de fonctionnement** : [À FAIRE : AJOUTER ICI LA CAPTURE D'ÉCRAN DE L'ONGLET NETWORK LORS DE LA CONNEXION / PROFIL]
+*   **Preuve de fonctionnement** : ![Capture d'écran réseau](images/capture_reseau_tp1.png)
 *   **Ce que chaque membre sait maintenant expliquer** : Comment afficher dynamiquement un message d'erreur d'un formulaire réactif (`form.controls.email.invalid`), comment utiliser le cycle de vie `OnInit` pour charger des données à l'ouverture d'un composant, et à quoi sert l'opérateur `catchError` dans un Interceptor Angular.
+
+### Question Théorique : Différence entre Signal et localStorage
+
+*   **Le `localStorage`** est une API fournie par le navigateur web qui permet de stocker des données de manière **persistante** sur le disque dur de l'utilisateur. Même si on rafraîchit la page ou qu'on ferme le navigateur, les données (comme le token JWT) sont conservées. Cependant, le localStorage n'est pas réactif : si sa valeur change, Angular ne le détectera pas automatiquement pour mettre à jour l'interface.
+*   **Les `Signals`** (nouveauté d'Angular) sont des conteneurs de données **réactifs** stockés en mémoire vive (RAM). Dès que la valeur d'un Signal change, Angular met immédiatement à jour les parties de l'interface graphique (HTML) qui en dépendent. En revanche, si on rafraîchit la page, la donnée du Signal est perdue.
+
+**Pourquoi utiliser les deux ensemble ?** 
+Dans notre application, nous sauvegardons le JWT dans le `localStorage` pour qu'il persiste entre les sessions, mais nous le chargeons aussi dans un `Signal` au démarrage. Ainsi, nous avons à la fois la persistance (grâce au localStorage) et la réactivité en temps réel pour l'interface (grâce aux Signals).
