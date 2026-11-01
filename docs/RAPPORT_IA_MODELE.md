@@ -52,7 +52,6 @@ Comprendre l'architecture globale de l'application Angular 22 standalone et de s
 * **Trajet complet d'une connexion :** Savoir détailler le flux de bout en bout : Composant (`LoginPageComponent`) -> Service (`AuthService.login`) -> `HttpClient` -> `proxy.conf.json` -> Backend Express (`/api/auth/login`) -> Requête MongoDB (`User.findOne`) -> Hash bcrypt -> Signature JWT -> Réponse HTTP -> Stockage `localStorage` + Signal -> Redirection via `Router`.
 * **Sécurité :** Savoir pourquoi les mots de passe et les secrets JWT ne doivent jamais transiter dans les logs, le code source frontend ou le dépôt Git.
 
-
 ---
 
 ## Mission 1 — Inscription, Connexion et Profil
@@ -82,27 +81,27 @@ Compléter l'ensemble du flux d'authentification et de gestion de profil : valid
 - **Correction du déclenchement du profil :** Le composant de départ demandait à l'utilisateur de cliquer sur un bouton pour charger son profil. Corrigé pour utiliser `ngOnInit()` et charger les informations dès l'affichage de la page, comme exigé par le sujet.
 
 ### 6. Fichiers effectivement modifiés / consultés
-* **Fichiers modifiés :**
-  * `frontend-starter/src/app/shared/services/auth.service.ts`
-  * `frontend-starter/src/app/shared/interceptors/auth.interceptor.ts`
-  * `frontend-starter/src/app/components/app/app.ts` & `app.html` & `app.css`
-  * `frontend-starter/src/app/components/login-page/login-page.ts` & `login-page.html`
-  * `frontend-starter/src/app/components/register-page/register-page.ts` & `register-page.html`
-  * `frontend-starter/src/app/components/profile-page/profile-page.ts` & `profile-page.html` & `profile-page.css`
-  * `docs/mon-journal/JOURNAL_TP1.md`
-  * `docs/RAPPORT_IA_MODELE.md`
+* `frontend-starter/src/app/shared/services/auth.service.ts`
+* `frontend-starter/src/app/shared/interceptors/auth.interceptor.ts`
+* `frontend-starter/src/app/components/app/app.ts` & `app.html` & `app.css`
+* `frontend-starter/src/app/components/login-page/login-page.ts` & `login-page.html`
+* `frontend-starter/src/app/components/register-page/register-page.ts` & `register-page.html`
+* `frontend-starter/src/app/components/profile-page/profile-page.ts` & `profile-page.html` & `profile-page.css`
+* `docs/mon-journal/JOURNAL_TP1.md`
+* `docs/RAPPORT_IA_MODELE.md`
 
 ### 7. Preuve de fonctionnement
 * Compilation TypeScript et build de production Angular réussis sans avertissement (`dist/gpc` généré).
 * Formulaires de connexion et d'inscription opérationnels avec blocage des envois invalides.
 * Profil utilisateur synchronisé avec le backend MongoDB Atlas.
+* Capture réseau de l'authentification :
+  ![Preuve Network Authentification](images/tp1/tp1-auth.png)
 
 ### 8. Ce que chaque membre du binôme sait maintenant expliquer sans l'agent
 * **Formulaires réactifs vs formulaires template-driven :** Savoir expliquer pourquoi `FormGroup` et `FormControl` permettent un contrôle programmatique rigoureux et des tests unitaires simplifiés.
 * **Gestion du cycle de vie avec `ngOnInit` :** Savoir pourquoi les appels asynchrones d'initialisation de données (comme `GET /api/users/me`) sont placés dans `ngOnInit` plutôt que dans le constructeur.
 * **Différence entre Signal et `localStorage` :** Savoir expliquer la distinction entre la mémoire vive réactive d'Angular et la persistance sur disque du navigateur.
 * **Sécurité du JWT :** Savoir comment fonctionne l'intercepteur HTTP pour ajouter `Authorization: Bearer <token>` et réagir au code HTTP 401 en invalidant la session.
-
 
 ---
 
@@ -140,6 +139,8 @@ Implémenter la consultation réactive de la bibliothèque audio en pagination s
 ### 7. Preuve de fonctionnement
 * Pagination fonctionnelle avec requêtes HTTP dédiées pour chaque page.
 * Cards responsives et esthétiques affichant le titre, le nom de fichier original, la taille et la date.
+* Capture réseau de la pagination :
+  ![Preuve Pagination](images/tp2/tp2-pagination.png)
 
 ### 8. Ce que chaque membre du binôme sait maintenant expliquer sans l'agent
 * **Pourquoi la pagination serveur est supérieure au découpage frontend :** Économie drastique de mémoire vive et de bande passante réseau pour les catalogues volumineux.
@@ -180,12 +181,13 @@ Améliorer le processus de téléversement et de lecture audio : validation pré
 ### 7. Preuve de fonctionnement
 * Upload validé côté client et côté serveur avec rafraîchissement automatique de la page 1.
 * Lecteur audio fonctionnel et propre, sans fuite mémoire.
+* Capture de la lecture audio authentifiée :
+  ![Preuve Lecture Audio](images/tp2/tp2-audio.png)
 
 ### 8. Ce que chaque membre du binôme sait maintenant expliquer sans l'agent
 * **Pourquoi révoquer une `ObjectURL` :** Éviter les fuites de mémoire vive (RAM) dans le navigateur en libérant le pointeur interne vers le `Blob`.
 * **Pourquoi la validation client ne remplace pas la validation serveur :** L'interface utilisateur protège l'expérience utilisateur, mais seul le serveur garantit la sécurité face à des requêtes forgées.
 * **Différence entre téléchargement complet d'un Blob et streaming serveur :** Savoir expliquer comment Express lit le fichier par blocs (chunks) et pourquoi Angular attend le Blob complet avant de l'injecter dans le player.
-
 
 ---
 
@@ -223,6 +225,8 @@ Ajouter une action de suppression sécurisée sur chaque carte de morceau : conf
 
 ### 7. Preuve de fonctionnement
 * Suppression effective de morceaux avec journalisation backend confirmant l'effacement du document MongoDB et du fichier physique sur le disque.
+* Capture réseau de la suppression :
+  ![Preuve Suppression Piste](images/tp3/tp3-delete.png)
 
 ### 8. Ce que chaque membre du binôme sait maintenant expliquer sans l'agent
 * **Sécurité backend de la suppression :** Savoir expliquer pourquoi seule la clause `{ _id: id, ownerId: req.auth.sub }` côté Express garantit qu'un utilisateur ne peut pas supprimer la ressource d'un autre.
@@ -260,6 +264,8 @@ Enrichir le téléversement de fichiers audio pour suivre et afficher en temps r
 
 ### 7. Preuve de fonctionnement
 * Barre de progression fonctionnelle réagissant aux événements HTTP réseau.
+* Capture de la progression d'upload :
+  ![Preuve Progression Upload](images/tp3/tp3-progress.png)
 
 ### 8. Ce que chaque membre du binôme sait maintenant expliquer sans l'agent
 * **Différence entre réponse unique et flux d'événements :** Savoir expliquer la différence entre une requête HTTP classique et une requête observant les événements de transfert réseau.
@@ -301,6 +307,8 @@ Mettre en place une suite de tests unitaires automatisés pour le frontend avec 
 ### 7. Preuve de fonctionnement
 * Sortie Vitest : 3 suites de tests, 6 assertions passées avec succès.
 * `npm run build` : sortie `dist/gpc` générée en 2.2s.
+* Capture d'exécution des tests automatisés :
+  ![Preuve Tests Vitest](images/tp3/tp3-tests.png)
 
 ### 8. Ce que chaque membre du binôme sait maintenant expliquer sans l'agent
 * **Fonctionnement de `HttpTestingController` :** Savoir expliquer comment `expectOne` intercepte la requête émise par le service et comment `req.flush(data)` simule la réponse HTTP du serveur.
