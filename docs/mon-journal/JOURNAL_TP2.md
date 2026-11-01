@@ -123,3 +123,4 @@ Afficher la liste des morceaux audio appartenant à l'utilisateur sous forme de 
 * **Réponse :** À chaque appel de `URL.createObjectURL(blob)`, le navigateur garde en mémoire vive une référence interne vers les octets du `Blob` tant que le document est actif. Le ramasse-miettes (Garbage Collector) ne peut pas libérer cette mémoire.
 * Si l'utilisateur écoute successivement plusieurs dizaines de morceaux sans révocation, la mémoire RAM du navigateur enfle indéfiniment (**fuite de mémoire**).
 * Appeler `URL.revokeObjectURL(url)` (dans `play()` pour l'ancien morceau et dans `ngOnDestroy()` à la fermeture du composant) permet d'indiquer au navigateur que la ressource peut être immédiatement libérée de la mémoire.
+

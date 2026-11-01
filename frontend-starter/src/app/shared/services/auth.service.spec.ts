@@ -70,3 +70,4 @@ describe('AuthService (Unit Tests)', () => {
     expect(localStorage.getItem('gpc_token')).toBeNull();
   });
 });
+

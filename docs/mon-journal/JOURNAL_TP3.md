@@ -141,3 +141,4 @@ npm test
 ### 6. Quelle différence existe-t-il entre un test unitaire et un test d’intégration ?
 * **Test unitaire :** Isole une brique élémentaire unique (une fonction, un service ou une méthode de composant) en remplaçant toutes ses dépendances par des doublons (mocks / stubs). But : vérifier la logique interne isolée.
 * **Test d'intégration :** Teste la collaboration entre plusieurs composants réels (ex : un composant connecté à son vrai service, avec le routeur et les intercepteurs) pour vérifier qu'ils fonctionnent correctement ensemble dans un scénario réaliste.
+
