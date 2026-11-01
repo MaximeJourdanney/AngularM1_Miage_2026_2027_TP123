@@ -102,3 +102,86 @@ Compléter l'ensemble du flux d'authentification et de gestion de profil : valid
 * **Gestion du cycle de vie avec `ngOnInit` :** Savoir pourquoi les appels asynchrones d'initialisation de données (comme `GET /api/users/me`) sont placés dans `ngOnInit` plutôt que dans le constructeur.
 * **Différence entre Signal et `localStorage` :** Savoir expliquer la distinction entre la mémoire vive réactive d'Angular et la persistance sur disque du navigateur.
 * **Sécurité du JWT :** Savoir comment fonctionne l'intercepteur HTTP pour ajouter `Authorization: Bearer <token>` et réagir au code HTTP 401 en invalidant la session.
+
+
+---
+
+# Rapport d'usage de l'IA — TP2
+
+## Mission 2 — Bibliothèque paginée
+
+### 1. Objectif
+Implémenter la consultation réactive de la bibliothèque audio en pagination serveur via `GET /api/tracks?page=...&limit=5`. Gérer les états avec les Signals Angular (`tracks`, `page`, `pages`, `total`, `loading`, `listError`), l'affichage par blocs (`@for`, `@empty`, `@if`) et la désactivation rigoureuse des boutons de pagination aux bornes.
+
+### 2. Prompt principal
+> "Implémente la mission 2 du TP2 : assure-toi que TrackService.list transmet bien page et limit, configure les Signals réactifs dans TracksPageComponent pour stocker les pistes, le chargement et la pagination. Affiche les morceaux sous forme de cards responsives dans le template et bloque les boutons Précédent et Suivant aux bornes."
+
+### 3. Plan proposé par l'agent
+1. Vérifier et documenter la transmission des paramètres HTTP dans `TrackService.list(page, limit)`.
+2. Définir les Signals Angular pour l'état de la bibliothèque dans `TracksPageComponent`.
+3. Concevoir le template HTML avec `@for` pour itérer sur les morceaux, `@empty` pour l'état vide et des boutons de pagination bornés.
+4. Styliser les éléments sous forme de cards responsives et accessibles avec métadonnées claires.
+
+### 4. Vérifications réalisées par le binôme
+- Test des bornes : vérification que le bouton « Précédent » est désactivé quand `page === 1` et « Suivant » quand `page === pages`.
+- Vérification dans l'onglet Network que chaque changement de page déclenche une requête `GET /api/tracks?page=X&limit=5`.
+- Vérification que la liste se met à jour immédiatement sans rechargement de la page.
+
+### 5. Erreurs ou propositions rejetées
+- **Rejet de la pagination purement en mémoire côté client :** Proposition initiale d'appeler toutes les pistes puis de faire un `.slice()` en TypeScript rejetée pour respecter l'interdiction stricte du sujet et garantir la scalabilité.
+
+### 6. Fichiers effectivement modifiés / consultés
+* `frontend-starter/src/app/shared/services/track.service.ts`
+* `frontend-starter/src/app/components/tracks-page/tracks-page.ts`
+* `frontend-starter/src/app/components/tracks-page/tracks-page.html`
+* `frontend-starter/src/app/components/tracks-page/tracks-page.css`
+* `docs/mon-journal/JOURNAL_TP2.md`
+
+### 7. Preuve de fonctionnement
+* Pagination fonctionnelle avec requêtes HTTP dédiées pour chaque page.
+* Cards responsives et esthétiques affichant le titre, le nom de fichier original, la taille et la date.
+
+### 8. Ce que chaque membre du binôme sait maintenant expliquer sans l'agent
+* **Pourquoi la pagination serveur est supérieure au découpage frontend :** Économie drastique de mémoire vive et de bande passante réseau pour les catalogues volumineux.
+* **Fonctionnement de `params` avec `HttpClient` :** Comment Angular sérialise les objets de paramètres dans l'URL de requête.
+
+---
+
+## Mission 3 — Analyse, amélioration de l’upload et lecture audio
+
+### 1. Objectif
+Améliorer le processus de téléversement et de lecture audio : validation préalable côté client (taille max 25 Mo, formats audio autorisés), désactivation anti-double soumission, message de chargement/succès, réinitialisation du formulaire, lecture audio sécurisée via `Blob` et `URL.createObjectURL`, et libération rigoureuse de la mémoire par `URL.revokeObjectURL`.
+
+### 2. Prompt principal
+> "Implémente la mission 3 du TP2 : ajoute la validation côté client avant envoi (max 25 Mo, format audio), gère l'état d'envoi et les messages d'erreur/succès, réinitialise après upload, sécurise la lecture par Blob/ObjectURL et assure-toi que ngOnDestroy révoque l'URL pour éviter toute fuite mémoire."
+
+### 3. Plan proposé par l'agent
+1. Ajouter la méthode `choose(event)` dans `TracksPageComponent` validant la taille (`<= 25 Mo`) et le type MIME avant tout appel HTTP.
+2. Implémenter l'état de chargement `uploading` et désactiver le bouton pendant l'envoi pour bloquer les doubles clics.
+3. Implémenter la méthode `play(track)` avec révocation systématique de l'ancienne URL objet.
+4. Implémenter le hook `ngOnDestroy` pour nettoyer l'URL active à la destruction du composant.
+5. Rédiger les réponses détaillées aux questions de mémoire, buffering et streaming dans `JOURNAL_TP2.md`.
+
+### 4. Vérifications réalisées par le binôme
+- Test d'upload avec un fichier de plus de 25 Mo : blocage immédiat côté client avec message d'alerte explicite sans envoi de requête HTTP inutile.
+- Test de lecture audio : vérification que la requête `GET /api/tracks/:id/audio` transmet bien le header `Authorization: Bearer <token>` et renvoie le flux audio.
+- Test de destruction du composant : vérification que la révocation d'URL est exécutée sans provoquer d'erreur console.
+
+### 5. Erreurs ou propositions rejetées
+- **Rejet de l'URL directe dans la balise audio :** Une tentative de mettre directement `/api/tracks/:id/audio` dans `<audio src="...">` a échoué avec un code 401. L'explication a été documentée : le tag audio natif n'embarque pas les headers HTTP personnalisés d'Angular.
+
+### 6. Fichiers effectivement modifiés / consultés
+* `frontend-starter/src/app/components/tracks-page/tracks-page.ts`
+* `frontend-starter/src/app/components/tracks-page/tracks-page.html`
+* `frontend-starter/src/app/components/tracks-page/tracks-page.css`
+* `docs/mon-journal/JOURNAL_TP2.md`
+* `docs/RAPPORT_IA_MODELE.md`
+
+### 7. Preuve de fonctionnement
+* Upload validé côté client et côté serveur avec rafraîchissement automatique de la page 1.
+* Lecteur audio fonctionnel et propre, sans fuite mémoire.
+
+### 8. Ce que chaque membre du binôme sait maintenant expliquer sans l'agent
+* **Pourquoi révoquer une `ObjectURL` :** Éviter les fuites de mémoire vive (RAM) dans le navigateur en libérant le pointeur interne vers le `Blob`.
+* **Pourquoi la validation client ne remplace pas la validation serveur :** L'interface utilisateur protège l'expérience utilisateur, mais seul le serveur garantit la sécurité face à des requêtes forgées.
+* **Différence entre téléchargement complet d'un Blob et streaming serveur :** Savoir expliquer comment Express lit le fichier par blocs (chunks) et pourquoi Angular attend le Blob complet avant de l'injecter dans le player.

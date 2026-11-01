@@ -1,1 +1,143 @@
-:host { display: block; }
+.header-row {
+  margin-bottom: 1.2rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 1px solid #e1ebe7;
+}
+
+.total-badge {
+  color: #557268;
+  font-size: 0.85rem;
+}
+
+.btn-refresh {
+  background: #46695e;
+  font-size: 0.85rem;
+  padding: 0.5rem 0.9rem;
+}
+
+.tracks-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.track-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: #fbfdfc;
+  border: 1px solid #dce8e4;
+  border-radius: 12px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.track-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(23, 49, 42, 0.08);
+  border-color: #a7cfc3;
+}
+
+.track-card.playing {
+  border-color: #1d755e;
+  background: #f0f7f4;
+  box-shadow: 0 0 0 2px #1d755e22;
+}
+
+.track-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.track-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.track-icon {
+  font-size: 1.2rem;
+}
+
+.track-title {
+  font-size: 1.05rem;
+  color: #123d32;
+}
+
+.track-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  font-size: 0.8rem;
+  color: #557268;
+}
+
+.track-format {
+  background: #e5efe9;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  font-family: monospace;
+}
+
+.btn-play {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.page-indicator {
+  font-weight: 500;
+  color: #274c40;
+}
+
+.empty-state, .loading-state {
+  text-align: center;
+  padding: 2.5rem 1rem;
+  color: #61756f;
+  background: #f8faf9;
+  border-radius: 10px;
+  border: 1px dashed #cedbd6;
+}
+
+.player-banner {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: #eef6f3;
+  border-radius: 12px;
+  border: 1px solid #b7d6cb;
+}
+
+.player-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.6rem;
+  font-size: 0.95rem;
+  color: #123d32;
+}
+
+.player-info strong {
+  color: #1d755e;
+}
+
+.success {
+  color: #1b633b;
+  background: #e6f6ec;
+  padding: 0.6rem 0.8rem;
+  border-radius: 6px;
+  border: 1px solid #b8e6ca;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 600px) {
+  .track-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.8rem;
+  }
+  .btn-play {
+    width: 100%;
+  }
+}

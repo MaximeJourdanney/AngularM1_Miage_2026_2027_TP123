@@ -2,43 +2,145 @@
   <div class="hero">
     <p class="eyebrow">MA BIBLIOTHÈQUE</p>
     <h1>Backing tracks</h1>
-    <p>Importez, retrouvez et écoutez vos morceaux de travail.</p>
+    <p>Importez, retrouvez et écoutez vos morceaux de travail avec votre ampli de guitare.</p>
   </div>
 
   <div class="grid">
+    <!-- Formulaire d'upload -->
     <article class="card">
-      <h2>Importer</h2>
-      <label>Titre<input [formControl]="title" /></label>
-      <label>Fichier audio<input type="file" accept="audio/*" (change)="choose($event)" /></label>
-      <button type="button" (click)="upload()" [disabled]="!file">Envoyer</button>
+      <h2>Importer un morceau</h2>
+      
+      <label>
+        Titre du morceau
+        <input [formControl]="title" placeholder="Ex: Solo Blues en La" />
+      </label>
+
+      <label>
+        Fichier audio (max. 25 Mo)
+        <input type="file" accept="audio/*,.mp3,.wav,.ogg,.m4a" (change)="choose($event)" />
+      </label>
+
+      @if (uploadError()) {
+        <p class="error">{{ uploadError() }}</p>
+      }
+
+      @if (uploadSuccess()) {
+        <p class="success">{{ uploadSuccess() }}</p>
+      }
+
+      <button
+        type="button"
+        (click)="upload()"
+        [disabled]="!selectedFile || uploading()"
+      >
+        {{ uploading() ? 'Envoi en cours…' : 'Envoyer le morceau' }}
+      </button>
     </article>
 
+    <!-- Liste des pistes sous forme de cards -->
     <article class="card">
-      <div class="row">
-        <h2>Mes pistes</h2>
-        <button type="button" (click)="load()">Actualiser</button>
-      </div>
-      @if (loading()) {
-        <p>Chargement…</p>
-      }
-      @for (track of tracks(); track track.id) {
-        <div class="track">
-          <div>
-            <b>{{ track.title }}</b>
-            <small>{{ track.originalName }} · {{ track.size }} Ko</small>
-          </div>
-          <button type="button" (click)="play(track)" [attr.aria-label]="'Lire ' + track.title">▶</button>
+      <div class="row header-row">
+        <div>
+          <h2>Mes morceaux</h2>
+          <small class="total-badge">{{ total() }} morceau{{ total() > 1 ? 'x' : '' }} au total</small>
         </div>
-      } @empty {
-        <p>Aucune piste.</p>
-      }
-      <div class="pager">
-        <button type="button" (click)="go(page() - 1)" [disabled]="page() === 1">Préc.</button>
-        <span>Page {{ page() }} / {{ pages() }}</span>
-        <button type="button" (click)="go(page() + 1)" [disabled]="page() === pages()">Suiv.</button>
+        <button type="button" class="btn-refresh" (click)="load()" [disabled]="loading()">
+          {{ loading() ? 'Chargement…' : 'Actualiser' }}
+        </button>
       </div>
-      @if (audioUrl()) {
-        <audio [src]="audioUrl()" controls autoplay></audio>
+
+      <!-- Erreur de liste -->
+      @if (listError()) {
+        <p class="error">{{ listError() }}</p>
+      }
+
+      <!-- État de chargement -->
+      @if (loading()) {
+        <div class="loading-state">
+          <p>Chargement des pistes depuis le serveur…</p>
+        </div>
+      }
+
+      <!-- Liste de cards responsives -->
+      <div class="tracks-list">
+        @for (track of tracks(); track track.id) {
+          <div class="track-card" [class.playing]="currentTrack()?.id === track.id">
+            <div class="track-info">
+              <div class="track-header">
+                <span class="track-icon">🎸</span>
+                <b class="track-title">{{ track.title }}</b>
+              </div>
+              <div class="track-meta">
+                <span>📁 {{ track.originalName }}</span>
+                <span>⚖️ {{ formatSize(track.size) }}</span>
+                <span>📅 {{ formatDate(track.createdAt) }}</span>
+                <span class="track-format">{{ track.mimeType }}</span>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              class="btn-play"
+              (click)="play(track)"
+              [attr.aria-label]="'Lire ' + track.title"
+              [disabled]="audioLoading() && currentTrack()?.id === track.id"
+            >
+              {{ currentTrack()?.id === track.id && audioLoading() ? '⏳' : '▶ Écouter' }}
+            </button>
+          </div>
+        } @empty {
+          @if (!loading()) {
+            <div class="empty-state">
+              <p>🎵 Aucune piste trouvée.</p>
+              <small>Utilisez le formulaire pour importer votre premier morceau de guitare.</small>
+            </div>
+          }
+        }
+      </div>
+
+      <!-- Pagination serveur -->
+      @if (pages() > 1 || tracks().length > 0) {
+        <div class="pager">
+          <button
+            type="button"
+            (click)="go(page() - 1)"
+            [disabled]="page() === 1 || loading()"
+          >
+            ← Précédent
+          </button>
+          
+          <span class="page-indicator">Page {{ page() }} sur {{ pages() }}</span>
+
+          <button
+            type="button"
+            (click)="go(page() + 1)"
+            [disabled]="page() === pages() || loading()"
+          >
+            Suivant →
+          </button>
+        </div>
+      }
+
+      <!-- Lecteur Audio persistant -->
+      @if (currentTrack(); as track) {
+        <div class="player-banner">
+          <div class="player-info">
+            <span>En lecture : <strong>{{ track.title }}</strong></span>
+            <small>{{ track.originalName }}</small>
+          </div>
+
+          @if (audioLoading()) {
+            <p>Chargement du flux audio sécurisé…</p>
+          }
+
+          @if (audioError()) {
+            <p class="error">{{ audioError() }}</p>
+          }
+
+          @if (audioUrl()) {
+            <audio [src]="audioUrl()" controls autoplay></audio>
+          }
+        </div>
       }
     </article>
   </div>
