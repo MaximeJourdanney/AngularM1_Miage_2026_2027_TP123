@@ -126,3 +126,86 @@ Comprendre comment l'application est structurée sans modifier le code : identif
   * `POST /api/tracks` : Upload multipart d'un morceau audio (`audio` + `title`).
   * `GET /api/tracks/:id/audio` : Streaming binaire du fichier audio.
   * `DELETE /api/tracks/:id` : Suppression d'une piste.
+
+
+---
+
+## Mission 1 — Inscription, Connexion et Profil
+
+### Objectif de la mission :
+Implémenter complètement la gestion des utilisateurs : formulaires réactifs avec validation côté client, persistance de session JWT sans fuite dans les logs, synchronisation d'état avec les Signals, déconnexion avec nettoyage local, chargement automatique du profil (`/api/users/me`), modification du nom et interception des erreurs HTTP 401 pour déconnexion automatique.
+
+---
+
+### 1. Implémentations réalisées
+
+1. **Service d'authentification (`frontend-starter/src/app/shared/services/auth.service.ts`) :**
+   * Gestion de deux Signals : `currentUser` (données de l'utilisateur) et `token` (jeton JWT).
+   * Persistance synchrone dans `localStorage` (`gpc_token` et `gpc_user`) pour préserver la session au rafraîchissement du navigateur.
+   * Méthodes `login()`, `register()`, `profile()`, `update()` et `logout()`.
+
+2. **Intercepteur HTTP (`frontend-starter/src/app/shared/interceptors/auth.interceptor.ts`) :**
+   * Injection transparente du header `Authorization: Bearer <token>` sur chaque requête protégée.
+   * Détection des erreurs HTTP `401 Unauthorized` (token expiré ou corrompu) : appel immédiat de `auth.logout()` et redirection automatique vers `/login`.
+
+3. **Composant racine & Navigation (`frontend-starter/src/app/components/app/`) :**
+   * Navigation dynamique basée sur le Signal `auth.token()` : affichage de « Backing tracks », « Profil » et du bouton « Déconnexion » pour les utilisateurs authentifiés ; « Connexion » et « Inscription » pour les visiteurs.
+   * Nettoyage de l'état local et redirection propre lors du clic sur « Déconnexion ».
+
+4. **Page de Profil (`frontend-starter/src/app/components/profile-page/`) :**
+   * Chargement automatique dès l'accès à la page via `ngOnInit()` appelant `this.auth.profile()`.
+   * Formulaire réactif pré-rempli permettant la mise à jour du nom d'artiste via `PUT /api/users/me`.
+   * Affichage de messages de succès et de messages d'erreur compréhensibles.
+
+5. **Formulaires réactifs Inscription & Connexion (`login-page/` et `register-page/`) :**
+   * Validation en temps réel : email au format valide, mot de passe requis d'au moins 8 caractères pour l'inscription, nom requis.
+   * Désactivation des boutons d'envoi si le formulaire est invalide ou pendant le chargement (`loading()`).
+
+---
+
+### 2. Réponses aux questions théoriques du TP1
+
+#### Q1 : Quelle est la différence entre un Signal et le `localStorage` ?
+* **Signal Angular :**
+  * C'est une primitive de réactivité en **mémoire vive (RAM)** propre à l'application Angular.
+  * Il avertit automatiquement les vues et les composants dès que sa valeur change afin de mettre à jour le DOM sans recharger la page.
+  * **Volatilité :** dès que la page est rechargée (F5) ou fermée, l'état du Signal est remis à zéro.
+* **`localStorage` :**
+  * C'est une API de stockage **persistant sur le disque** fournie par le navigateur web.
+  * Les données (uniquement sous forme de chaînes de caractères texte) subsistent après un rechargement de la page et après la fermeture du navigateur.
+  * **Absence de réactivité native :** modifier le `localStorage` ne met pas automatiquement à jour l'interface graphique d'Angular.
+* **Complémentarité :** Nous utilisons `localStorage` pour sauvegarder le token JWT entre deux sessions, et un `Signal` pour que les composants Angular réagissent instantanément à la présence ou l'absence d'un utilisateur connecté.
+
+---
+
+#### Q2 : Où s'effectue la tâche « mise à jour du profil utilisateur », dans quels fichiers côté front et côté back ?
+* **Côté Frontend :**
+  1. `frontend-starter/src/app/components/profile-page/profile-page.html` : L'utilisateur modifie son nom dans l'input et soumet le formulaire.
+  2. `frontend-starter/src/app/components/profile-page/profile-page.ts` : La méthode `save()` lit la valeur du `FormGroup` et appelle le service.
+  3. `frontend-starter/src/app/shared/services/auth.service.ts` : La méthode `update(name)` déclenche `this.http.put<User>('/api/users/me', { name })`.
+  4. `frontend-starter/src/app/shared/interceptors/auth.interceptor.ts` : Ajoute l'en-tête `Authorization: Bearer <token>`.
+* **Côté Backend :**
+  1. `backend/src/app.js` (Route `PUT /api/users/me`) :
+     * Le middleware `requireAuth` vérifie le jeton JWT et extrait l'identifiant de l'utilisateur (`req.userId`).
+     * Récupère le nouveau champ `name` du corps de requête `req.body`.
+     * Exécute la mise à jour MongoDB : `User.findByIdAndUpdate(req.userId, { name }, { new: true })`.
+     * Renvoie le document utilisateur mis à jour au format JSON (statut 200).
+
+---
+
+#### Q3 : Quel modèle utilisez-vous dans votre assistant IA ? Comment savoir combien vous avez consommé de tokens ? Qui peut vous conseiller sur le meilleur modèle ?
+* **Modèle utilisé :** Nous utilisons **Gemini 3.8 Flash** (modèle multimodal rapide et efficace pour le développement de code et l'analyse documentaire).
+* **Consommation de tokens :**
+  * La consommation est consultable dans la console développeur / tableau de bord de l'API (Google AI Studio ou Google Cloud Vertex AI), ou directement dans l'interface de l'IDE / plugin indiquant les métriques d'usage par requête et par session (tokens d'entrée + tokens de sortie).
+* **Conseil pour le meilleur modèle :**
+  * La documentation officielle (ex: Google AI documentation, benchmarks LMSYS Chatbot Arena) fournit les critères de latence, de coût et de capacité de raisonnement.
+  * Pour des tâches simples et itératives de développement web : les modèles rapides dits *Flash* ou *Mini* sont optimaux. Pour de la conception d'architectures complexes ou des preuves formelles : les modèles dits *Pro* ou *Reasoning* sont recommandés.
+
+---
+
+#### Q4 : Quelles sont les différentes routes du backend utilisées dans ce TP1 ?
+1. `POST /api/auth/register` : Inscription d'un nouvel utilisateur.
+2. `POST /api/auth/login` : Authentification et délivrance du JWT.
+3. `GET /api/users/me` : Lecture des informations du profil connecté.
+4. `PUT /api/users/me` : Modification du nom du profil connecté.
+5. `GET /api/health` : Contrôle de santé du serveur.

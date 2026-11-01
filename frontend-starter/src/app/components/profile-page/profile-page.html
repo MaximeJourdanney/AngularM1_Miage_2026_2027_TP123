@@ -1,14 +1,44 @@
 <section class="card">
   <h1>Mon profil</h1>
-  <button type="button" (click)="load()">Charger mon profil</button>
+
+  @if (loading()) {
+    <p>Chargement des informations du profil…</p>
+  }
+
+  @if (errorMessage()) {
+    <p class="error">{{ errorMessage() }}</p>
+  }
+
+  @if (successMessage()) {
+    <p class="success">{{ successMessage() }}</p>
+  }
+
   @if (auth.currentUser(); as user) {
-    <p>
-      <b>{{ user.name }}</b><br />{{ user.email }}<br />
-      Membre depuis {{ user.createdAt.slice(0, 10) }}
-    </p>
+    <div class="user-details">
+      <p>
+        <strong>Nom actuel :</strong> {{ user.name }}<br />
+        <strong>Adresse email :</strong> {{ user.email }}<br />
+        <small>Membre depuis le {{ user.createdAt.slice(0, 10) }}</small>
+      </p>
+    </div>
+
     <form [formGroup]="form" (ngSubmit)="save()">
-      <label>Nouveau nom<input formControlName="name" /></label>
-      <button type="submit">Enregistrer</button>
+      <label>
+        Modifier mon nom d'artiste
+        <input formControlName="name" placeholder="Nouveau nom" />
+        @if (form.controls.name.touched && form.controls.name.invalid) {
+          <small class="error">Le nom est obligatoire (minimum 2 caractères).</small>
+        }
+      </label>
+
+      <div class="actions">
+        <button type="submit" [disabled]="saving() || form.invalid">
+          {{ saving() ? 'Enregistrement…' : 'Mettre à jour le profil' }}
+        </button>
+        <button type="button" class="btn-refresh" (click)="load()" [disabled]="loading()">
+          Rafraîchir
+        </button>
+      </div>
     </form>
   }
 </section>

@@ -51,3 +51,54 @@ Comprendre l'architecture globale de l'application Angular 22 standalone et de s
 * **Fonctionnement de l'intercepteur HTTP :** Savoir expliquer que chaque requête HTTP émise par Angular passe par `authInterceptor`, qui lit le Signal `token()`, clone la requête pour y greffer le header HTTP `Authorization: Bearer <token>`, puis la transmet au backend.
 * **Trajet complet d'une connexion :** Savoir détailler le flux de bout en bout : Composant (`LoginPageComponent`) -> Service (`AuthService.login`) -> `HttpClient` -> `proxy.conf.json` -> Backend Express (`/api/auth/login`) -> Requête MongoDB (`User.findOne`) -> Hash bcrypt -> Signature JWT -> Réponse HTTP -> Stockage `localStorage` + Signal -> Redirection via `Router`.
 * **Sécurité :** Savoir pourquoi les mots de passe et les secrets JWT ne doivent jamais transiter dans les logs, le code source frontend ou le dépôt Git.
+
+
+---
+
+## Mission 1 — Inscription, Connexion et Profil
+
+### 1. Objectif
+Compléter l'ensemble du flux d'authentification et de gestion de profil : validation des formulaires réactifs (Angular Reactive Forms), interception des requêtes HTTP pour l'ajout du JWT, gestion automatique des erreurs 401 (redirection vers `/login`), persistance synchronisée entre Signals et `localStorage`, chargement automatique des informations du profil (`GET /api/users/me`) et modification du nom (`PUT /api/users/me`).
+
+### 2. Prompt principal
+> "Implémente la mission 1 du TP1 en suivant scrupuleusement les exigences : formulaires réactifs avec validation et retours d'erreur clairs, AuthService avec Signals réactifs et sauvegarde du JWT dans le localStorage sans l'afficher dans les logs, déconnexion avec nettoyage, chargement du profil dès l'affichage et gestion des 401 dans l'intercepteur HTTP. Commente le code pour qu'il soit simple et compréhensible pour les révisions."
+
+### 3. Plan proposé par l'agent
+1. Enrichir `AuthService` avec la persistance de l'utilisateur et du token dans `localStorage` combinée aux Signals Angular.
+2. Mettre à jour `authInterceptor` pour intercepter les statuts HTTP 401 via `catchError` d'RxJS, déclencher la déconnexion et rediriger vers `/login`.
+3. Adapter `AppComponent` et son template pour afficher une barre de navigation conditionnelle avec bouton de déconnexion.
+4. Ajouter des validations réactives complètes sur `LoginPageComponent` et `RegisterPageComponent` (formats email, longueurs minimales, retours visuels).
+5. Automatiser le chargement du profil dans `ProfilePageComponent` via le hook `ngOnInit()` et permettre la modification du nom avec retour utilisateur.
+6. Vérifier la compilation et le build Angular avec `npm run build`.
+
+### 4. Vérifications réalisées par le binôme
+- Test de la validation des formulaires : vérification de l'affichage des messages d'erreur lorsque l'email est mal formé ou le mot de passe inférieur à 8 caractères.
+- Vérification que le token JWT n'apparaît dans aucun `console.log` du code frontend.
+- Test de persistance : vérification que le rechargement de la page conserve l'état d'authentification grâce à la lecture initiale du `localStorage`.
+- Vérification du build Angular de production via `npx ng build` (exécuté avec succès en 2.1 secondes).
+
+### 5. Erreurs ou propositions rejetées
+- **Rejet de l'affichage du token dans les messages de débogage :** Une première ébauche de log proposait d'afficher l'objet de réponse complet lors de la connexion. Rejeté pour respecter les consignes strictes de sécurité qui interdisent formellement d'exposer les JWT dans la console ou les traces.
+- **Correction du déclenchement du profil :** Le composant de départ demandait à l'utilisateur de cliquer sur un bouton pour charger son profil. Corrigé pour utiliser `ngOnInit()` et charger les informations dès l'affichage de la page, comme exigé par le sujet.
+
+### 6. Fichiers effectivement modifiés / consultés
+* **Fichiers modifiés :**
+  * `frontend-starter/src/app/shared/services/auth.service.ts`
+  * `frontend-starter/src/app/shared/interceptors/auth.interceptor.ts`
+  * `frontend-starter/src/app/components/app/app.ts` & `app.html` & `app.css`
+  * `frontend-starter/src/app/components/login-page/login-page.ts` & `login-page.html`
+  * `frontend-starter/src/app/components/register-page/register-page.ts` & `register-page.html`
+  * `frontend-starter/src/app/components/profile-page/profile-page.ts` & `profile-page.html` & `profile-page.css`
+  * `docs/mon-journal/JOURNAL_TP1.md`
+  * `docs/RAPPORT_IA_MODELE.md`
+
+### 7. Preuve de fonctionnement
+* Compilation TypeScript et build de production Angular réussis sans avertissement (`dist/gpc` généré).
+* Formulaires de connexion et d'inscription opérationnels avec blocage des envois invalides.
+* Profil utilisateur synchronisé avec le backend MongoDB Atlas.
+
+### 8. Ce que chaque membre du binôme sait maintenant expliquer sans l'agent
+* **Formulaires réactifs vs formulaires template-driven :** Savoir expliquer pourquoi `FormGroup` et `FormControl` permettent un contrôle programmatique rigoureux et des tests unitaires simplifiés.
+* **Gestion du cycle de vie avec `ngOnInit` :** Savoir pourquoi les appels asynchrones d'initialisation de données (comme `GET /api/users/me`) sont placés dans `ngOnInit` plutôt que dans le constructeur.
+* **Différence entre Signal et `localStorage` :** Savoir expliquer la distinction entre la mémoire vive réactive d'Angular et la persistance sur disque du navigateur.
+* **Sécurité du JWT :** Savoir comment fonctionne l'intercepteur HTTP pour ajouter `Authorization: Bearer <token>` et réagir au code HTTP 401 en invalidant la session.
