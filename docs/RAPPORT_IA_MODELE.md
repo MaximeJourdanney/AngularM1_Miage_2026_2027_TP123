@@ -185,3 +185,123 @@ Améliorer le processus de téléversement et de lecture audio : validation pré
 * **Pourquoi révoquer une `ObjectURL` :** Éviter les fuites de mémoire vive (RAM) dans le navigateur en libérant le pointeur interne vers le `Blob`.
 * **Pourquoi la validation client ne remplace pas la validation serveur :** L'interface utilisateur protège l'expérience utilisateur, mais seul le serveur garantit la sécurité face à des requêtes forgées.
 * **Différence entre téléchargement complet d'un Blob et streaming serveur :** Savoir expliquer comment Express lit le fichier par blocs (chunks) et pourquoi Angular attend le Blob complet avant de l'injecter dans le player.
+
+
+---
+
+# Rapport d'usage de l'IA — TP3
+
+## Mission 5 — Suppression d’une piste
+
+### 1. Objectif
+Ajouter une action de suppression sécurisée sur chaque carte de morceau : confirmation utilisateur préalable, protection anti-double clic, appel `DELETE /api/tracks/:id` via `TrackService`, message de succès/erreur par notification Toast/SnackBar, et réajustement dynamique de la pagination.
+
+### 2. Prompt principal
+> "Implémente la mission 5 du TP3 : ajoute la méthode delete(id) dans TrackService, intègre un bouton de suppression avec confirmation dans TracksPageComponent, bloque les doubles clics via un Signal deletingId, affiche un toast de confirmation et ajuste la page courante si la piste supprimée était la dernière de la page."
+
+### 3. Plan proposé par l'agent
+1. Déclarer la méthode `delete(id: string)` dans `TrackService`.
+2. Ajouter le bouton de suppression sur chaque card dans `tracks-page.html`.
+3. Gérer l'état de suppression `deletingId` pour désactiver le bouton pendant l'appel HTTP.
+4. Intégrer un système de notification Toast léger dans `TracksPageComponent`.
+5. Reculer d'une page si le dernier élément de la page $N$ ($N > 1$) est supprimé.
+
+### 4. Vérifications réalisées par le binôme
+- Test d'annulation : clic sur « Annuler » dans la boîte de confirmation -> aucune requête HTTP n'est envoyée.
+- Test de validation : confirmation -> le bouton affiche l'état de suppression, la requête `DELETE /api/tracks/:id` part avec le header JWT, le toast vert confirme l'action et la liste se rafraîchit.
+- Vérification que la suppression du morceau en cours de lecture coupe immédiatement le lecteur audio et révoque son URL.
+
+### 5. Erreurs ou propositions rejetées
+- **Rejet de la suppression directe sans confirmation :** Proposition écartée car une fausse manipulation entraînerait la perte définitive du fichier audio sur le serveur.
+
+### 6. Fichiers effectivement modifiés / consultés
+* `frontend-starter/src/app/shared/services/track.service.ts`
+* `frontend-starter/src/app/components/tracks-page/tracks-page.ts`
+* `frontend-starter/src/app/components/tracks-page/tracks-page.html`
+* `frontend-starter/src/app/components/tracks-page/tracks-page.css`
+* `docs/mon-journal/JOURNAL_TP3.md`
+
+### 7. Preuve de fonctionnement
+* Suppression effective de morceaux avec journalisation backend confirmant l'effacement du document MongoDB et du fichier physique sur le disque.
+
+### 8. Ce que chaque membre du binôme sait maintenant expliquer sans l'agent
+* **Sécurité backend de la suppression :** Savoir expliquer pourquoi seule la clause `{ _id: id, ownerId: req.auth.sub }` côté Express garantit qu'un utilisateur ne peut pas supprimer la ressource d'un autre.
+
+---
+
+## Mission 6 — Progression de l’upload
+
+### 1. Objectif
+Enrichir le téléversement de fichiers audio pour suivre et afficher en temps réel la progression de l'envoi en pourcentage dans l'interface utilisateur grâce aux événements HTTP d'Angular.
+
+### 2. Prompt principal
+> "Implémente la mission 6 du TP3 : utilise reportProgress: true et observe: 'events' dans TrackService.uploadWithProgress, écoute les événements HttpEventType.UploadProgress dans TracksPageComponent pour calculer le pourcentage, et affiche une barre de progression fluide dans le template."
+
+### 3. Plan proposé par l'agent
+1. Créer la méthode `uploadWithProgress` dans `TrackService` avec les options `reportProgress: true` et `observe: 'events'`.
+2. Traiter le flux d'événements dans `TracksPageComponent` en calculant le pourcentage à partir de `event.loaded` et `event.total`.
+3. Ajouter une barre de progression visuelle dans `tracks-page.html` et désactiver les champs de saisie pendant l'envoi.
+4. Remettre à zéro et masquer la barre une fois la réponse reçue.
+
+### 4. Vérifications réalisées par le binôme
+- Test d'upload : observation de la progression fluide de 0% à 100%.
+- Vérification que le bouton est désactivé et affiche le pourcentage durant l'envoi.
+- Vérification qu'aucune information confidentielle (mot de passe, JWT) n'est affichée dans la console.
+
+### 5. Erreurs ou propositions rejetées
+- **Rejet d'une fausse barre de progression avec setInterval :** L'agent a directement privilégié les vrais événements natifs `HttpEventType.UploadProgress` pour refléter la vitesse réseau réelle.
+
+### 6. Fichiers effectivement modifiés / consultés
+* `frontend-starter/src/app/shared/services/track.service.ts`
+* `frontend-starter/src/app/components/tracks-page/tracks-page.ts`
+* `frontend-starter/src/app/components/tracks-page/tracks-page.html`
+* `frontend-starter/src/app/components/tracks-page/tracks-page.css`
+* `docs/mon-journal/JOURNAL_TP3.md`
+
+### 7. Preuve de fonctionnement
+* Barre de progression fonctionnelle réagissant aux événements HTTP réseau.
+
+### 8. Ce que chaque membre du binôme sait maintenant expliquer sans l'agent
+* **Différence entre réponse unique et flux d'événements :** Savoir expliquer la différence entre une requête HTTP classique et une requête observant les événements de transfert réseau.
+
+---
+
+## Mission 7 — Tests automatisés
+
+### 1. Objectif
+Mettre en place une suite de tests unitaires automatisés pour le frontend avec Vitest et `HttpTestingController`, sans dépendance envers un backend ou une base de données réels.
+
+### 2. Prompt principal
+> "Implémente la mission 7 du TP3 : configure l'environnement de test Vitest pour Angular, écris au moins 3 tests unitaires complets couvrant AuthService.login, TrackService.list et authInterceptor avec injection du token, lance la suite et vérifie que tout passe au vert."
+
+### 3. Plan proposé par l'agent
+1. Configurer `angular.json` et `tsconfig.spec.json` pour le runner de tests Vitest avec `happy-dom`.
+2. Écrire les tests unitaires pour `AuthService` (`auth.service.spec.ts`).
+3. Écrire les tests unitaires pour `TrackService` (`track.service.spec.ts`).
+4. Écrire les tests unitaires pour `authInterceptor` (`auth.interceptor.spec.ts`).
+5. Exécuter `npm test` et `npm run build`.
+
+### 4. Vérifications réalisées par le binôme
+- Exécution de `npm test` : 6 tests exécutés et 6 tests validés avec succès en 1.39s.
+- Exécution de `npm run build` : compilation AOT et génération du bundle sans aucune erreur.
+- Vérification que `httpMock.verify()` garantit qu'aucune requête inattendue n'est restée ouverte.
+
+### 5. Erreurs ou propositions rejetées
+- **Correction de la configuration Vitest :** Le runner réclamait un environnement DOM non-navigateur (`happy-dom`) et des cibles de build valides. Nous avons installé `happy-dom` et complété `angular.json` et `tsconfig.spec.json`.
+
+### 6. Fichiers effectivement modifiés / consultés
+* `frontend-starter/angular.json`
+* `frontend-starter/tsconfig.spec.json`
+* `frontend-starter/src/app/shared/services/auth.service.spec.ts`
+* `frontend-starter/src/app/shared/services/track.service.spec.ts`
+* `frontend-starter/src/app/shared/interceptors/auth.interceptor.spec.ts`
+* `docs/mon-journal/JOURNAL_TP3.md`
+* `docs/RAPPORT_IA_MODELE.md`
+
+### 7. Preuve de fonctionnement
+* Sortie Vitest : 3 suites de tests, 6 assertions passées avec succès.
+* `npm run build` : sortie `dist/gpc` générée en 2.2s.
+
+### 8. Ce que chaque membre du binôme sait maintenant expliquer sans l'agent
+* **Fonctionnement de `HttpTestingController` :** Savoir expliquer comment `expectOne` intercepte la requête émise par le service et comment `req.flush(data)` simule la réponse HTTP du serveur.
+* **Différence entre test unitaire et test d'intégration :** Savoir expliciter pourquoi les tests unitaires isolent la logique métier sans faire d'appels réseau réels.

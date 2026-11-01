@@ -1,4 +1,12 @@
 <section>
+  <!-- Notification Toast / SnackBar (Mission 5) -->
+  @if (toastMessage()) {
+    <div class="toast-snackbar" [class.toast-error]="toastType() === 'error'">
+      <span>{{ toastType() === 'error' ? '⚠️' : '✅' }} {{ toastMessage() }}</span>
+      <button type="button" class="btn-close-toast" (click)="toastMessage.set('')">✕</button>
+    </div>
+  }
+
   <div class="hero">
     <p class="eyebrow">MA BIBLIOTHÈQUE</p>
     <h1>Backing tracks</h1>
@@ -6,19 +14,41 @@
   </div>
 
   <div class="grid">
-    <!-- Formulaire d'upload -->
+    <!-- Formulaire d'upload avec progression (Mission 6) -->
     <article class="card">
       <h2>Importer un morceau</h2>
       
       <label>
         Titre du morceau
-        <input [formControl]="title" placeholder="Ex: Solo Blues en La" />
+        <input
+          [formControl]="title"
+          placeholder="Ex: Solo Blues en La"
+          [disabled]="uploadStatus() === 'uploading'"
+        />
       </label>
 
       <label>
         Fichier audio (max. 25 Mo)
-        <input type="file" accept="audio/*,.mp3,.wav,.ogg,.m4a" (change)="choose($event)" />
+        <input
+          type="file"
+          accept="audio/*,.mp3,.wav,.ogg,.m4a"
+          (change)="choose($event)"
+          [disabled]="uploadStatus() === 'uploading'"
+        />
       </label>
+
+      <!-- Barre de progression en temps réel (Mission 6) -->
+      @if (uploadStatus() === 'uploading') {
+        <div class="progress-container">
+          <div class="progress-labels">
+            <span>Téléversement en cours…</span>
+            <strong>{{ uploadProgress() }}%</strong>
+          </div>
+          <div class="progress-bar-track">
+            <div class="progress-bar-fill" [style.width.%]="uploadProgress()"></div>
+          </div>
+        </div>
+      }
 
       @if (uploadError()) {
         <p class="error">{{ uploadError() }}</p>
@@ -31,13 +61,13 @@
       <button
         type="button"
         (click)="upload()"
-        [disabled]="!selectedFile || uploading()"
+        [disabled]="!selectedFile || uploadStatus() === 'uploading'"
       >
-        {{ uploading() ? 'Envoi en cours…' : 'Envoyer le morceau' }}
+        {{ uploadStatus() === 'uploading' ? 'Téléversement (' + uploadProgress() + '%)…' : 'Envoyer le morceau' }}
       </button>
     </article>
 
-    <!-- Liste des pistes sous forme de cards -->
+    <!-- Liste des morceaux sous forme de cards -->
     <article class="card">
       <div class="row header-row">
         <div>
@@ -49,19 +79,17 @@
         </button>
       </div>
 
-      <!-- Erreur de liste -->
       @if (listError()) {
         <p class="error">{{ listError() }}</p>
       }
 
-      <!-- État de chargement -->
       @if (loading()) {
         <div class="loading-state">
           <p>Chargement des pistes depuis le serveur…</p>
         </div>
       }
 
-      <!-- Liste de cards responsives -->
+      <!-- Cards de morceaux avec lecture et suppression (Missions 2 & 5) -->
       <div class="tracks-list">
         @for (track of tracks(); track track.id) {
           <div class="track-card" [class.playing]="currentTrack()?.id === track.id">
@@ -78,21 +106,33 @@
               </div>
             </div>
 
-            <button
-              type="button"
-              class="btn-play"
-              (click)="play(track)"
-              [attr.aria-label]="'Lire ' + track.title"
-              [disabled]="audioLoading() && currentTrack()?.id === track.id"
-            >
-              {{ currentTrack()?.id === track.id && audioLoading() ? '⏳' : '▶ Écouter' }}
-            </button>
+            <div class="track-actions">
+              <button
+                type="button"
+                class="btn-play"
+                (click)="play(track)"
+                [attr.aria-label]="'Lire ' + track.title"
+                [disabled]="audioLoading() && currentTrack()?.id === track.id"
+              >
+                {{ currentTrack()?.id === track.id && audioLoading() ? '⏳' : '▶ Écouter' }}
+              </button>
+
+              <button
+                type="button"
+                class="btn-delete"
+                (click)="deleteTrack(track)"
+                [attr.aria-label]="'Supprimer ' + track.title"
+                [disabled]="deletingId() === track.id"
+              >
+                {{ deletingId() === track.id ? 'Suppression…' : '🗑️' }}
+              </button>
+            </div>
           </div>
         } @empty {
           @if (!loading()) {
             <div class="empty-state">
-              <p>🎵 Aucune piste trouvée.</p>
-              <small>Utilisez le formulaire pour importer votre premier morceau de guitare.</small>
+              <p>🎵 Aucune piste dans votre bibliothèque.</p>
+              <small>Importez votre premier fichier audio pour commencer à vous entraîner.</small>
             </div>
           }
         }

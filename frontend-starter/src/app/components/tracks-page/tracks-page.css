@@ -1,3 +1,37 @@
+.toast-snackbar {
+  position: sticky;
+  top: 1rem;
+  z-index: 100;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #123d32;
+  color: white;
+  padding: 0.8rem 1.2rem;
+  border-radius: 8px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  margin-bottom: 1.5rem;
+  animation: slideDown 0.25s ease-out;
+}
+
+.toast-snackbar.toast-error {
+  background: #942525;
+}
+
+.btn-close-toast {
+  background: transparent;
+  color: white;
+  border: none;
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 0 0.5rem;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 .header-row {
   margin-bottom: 1.2rem;
   padding-bottom: 0.8rem;
@@ -13,6 +47,37 @@
   background: #46695e;
   font-size: 0.85rem;
   padding: 0.5rem 0.9rem;
+}
+
+.progress-container {
+  margin: 1rem 0;
+  padding: 0.8rem;
+  background: #f0f7f4;
+  border-radius: 8px;
+  border: 1px solid #c8ded6;
+}
+
+.progress-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: #17312a;
+  margin-bottom: 0.4rem;
+}
+
+.progress-bar-track {
+  width: 100%;
+  height: 8px;
+  background: #d8e8e2;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: #1d755e;
+  border-radius: 4px;
+  transition: width 0.2s ease-in-out;
 }
 
 .tracks-list {
@@ -80,11 +145,33 @@
   font-family: monospace;
 }
 
+.track-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
 .btn-play {
   padding: 0.5rem 1rem;
   font-size: 0.9rem;
   font-weight: 600;
   white-space: nowrap;
+}
+
+.btn-delete {
+  background: #fbeef0;
+  color: #a32a2a;
+  border: 1px solid #f1c5c5;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.btn-delete:hover:not(:disabled) {
+  background: #c83232;
+  color: white;
 }
 
 .page-indicator {
@@ -137,7 +224,8 @@
     align-items: flex-start;
     gap: 0.8rem;
   }
-  .btn-play {
+  .track-actions {
     width: 100%;
+    justify-content: space-between;
   }
 }
