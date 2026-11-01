@@ -77,7 +77,7 @@ Afficher la liste des morceaux audio appartenant à l'utilisateur sous forme de 
 
 ### 2. Sécurité : Pourquoi `<audio src="...">` directement ne fonctionne pas avec une API protégée ?
 * Une balise `<audio src="http://localhost:3000/api/tracks/123/audio">` standard délègue la requête de streaming directement au moteur multimédia natif du navigateur.
-* **Le problème :** Cette requête multimédia directe du navigateur **ne passe pas par `HttpClient` d'Angular**, et ne bénéficie donc pas de notre `authInterceptor`. Elle part sans l'en-tête `Authorization: Bearer <token>`.
+* **Le problème :** Cette requête multimédia directe du navigateur **ne passe pas par `HttpClient` d'Angular**, et ne bénéficie donc pas de l'intercepteur `authInterceptor`. Elle part sans l'en-tête `Authorization: Bearer <token>`.
 * **La conséquence :** Le backend Express renvoie immédiatement un statut `401 Unauthorized`.
 * **La solution mise en œuvre :**
   1. Angular effectue une requête authentifiée via `HttpClient` avec `{ responseType: 'blob' }`. L'intercepteur injecte le JWT.

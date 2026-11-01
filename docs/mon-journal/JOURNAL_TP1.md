@@ -174,7 +174,7 @@ Implémenter complètement la gestion des utilisateurs : formulaires réactifs a
   * C'est une API de stockage **persistant sur le disque** fournie par le navigateur web.
   * Les données (uniquement sous forme de chaînes de caractères texte) subsistent après un rechargement de la page et après la fermeture du navigateur.
   * **Absence de réactivité native :** modifier le `localStorage` ne met pas automatiquement à jour l'interface graphique d'Angular.
-* **Complémentarité :** Nous utilisons `localStorage` pour sauvegarder le token JWT entre deux sessions, et un `Signal` pour que les composants Angular réagissent instantanément à la présence ou l'absence d'un utilisateur connecté.
+* **Complémentarité :** J'utilise `localStorage` pour sauvegarder le token JWT entre deux sessions, et un `Signal` pour que les composants Angular réagissent instantanément à la présence ou l'absence d'un utilisateur connecté.
 
 ---
 
@@ -194,7 +194,7 @@ Implémenter complètement la gestion des utilisateurs : formulaires réactifs a
 ---
 
 #### Q3 : Quel modèle utilisez-vous dans votre assistant IA ? Comment savoir combien vous avez consommé de tokens ? Qui peut vous conseiller sur le meilleur modèle ?
-* **Modèle utilisé :** Nous utilisons **Gemini 3.8 Flash** (modèle multimodal rapide et efficace pour le développement de code et l'analyse documentaire).
+* **Modèle utilisé :** J'utilise **Gemini 3.8 Flash** (modèle multimodal rapide et efficace pour le développement de code et l'analyse documentaire).
 * **Consommation de tokens :**
   * La consommation est consultable dans la console développeur / tableau de bord de l'API (Google AI Studio ou Google Cloud Vertex AI), ou directement dans l'interface de l'IDE / plugin indiquant les métriques d'usage par requête et par session (tokens d'entrée + tokens de sortie).
 * **Conseil pour le meilleur modèle :**

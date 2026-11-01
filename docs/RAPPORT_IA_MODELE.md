@@ -15,7 +15,7 @@ Comprendre l'architecture globale de l'application Angular 22 standalone et de s
 4. Tracer et annoter le diagramme séquentiel complet d'une connexion (du clic utilisateur jusqu'à la base MongoDB Atlas et le retour avec token JWT).
 5. Classifier les routes de `API_CONTRACT.md` en routes publiques et protégées.
 
-### 4. Vérifications réalisées par le binôme
+### 4. Vérifications réalisées par l'étudiant
 - Vérification visuelle du fichier `src/main.ts` et des fonctions de bootstrap standalone Angular.
 - Examen du fichier `src/app/routes.ts` et vérification de la présence de `authGuard`.
 - Examen du mécanisme d'interception dans `src/app/shared/interceptors/auth.interceptor.ts`.
@@ -46,7 +46,7 @@ Comprendre l'architecture globale de l'application Angular 22 standalone et de s
 * Backend Express connecté à MongoDB Atlas et accessible sur `http://localhost:3000/api/health` renvoyant `{ "status": "ok" }`.
 * Cartographie complète validée et consignée dans `docs/mon-journal/JOURNAL_TP1.md`.
 
-### 8. Ce que chaque membre du binôme sait maintenant expliquer sans l'agent
+### 8. Ce que je sais maintenant expliquer sans l'agent
 * **Démarrage Angular 22 :** Savoir expliquer comment `bootstrapApplication(AppComponent, ...)` initialise l'application sans `AppModule` et comment `provideHttpClient(withInterceptors([authInterceptor]))` fournit le client HTTP avec injection de dépendances moderne.
 * **Fonctionnement de l'intercepteur HTTP :** Savoir expliquer que chaque requête HTTP émise par Angular passe par `authInterceptor`, qui lit le Signal `token()`, clone la requête pour y greffer le header HTTP `Authorization: Bearer <token>`, puis la transmet au backend.
 * **Trajet complet d'une connexion :** Savoir détailler le flux de bout en bout : Composant (`LoginPageComponent`) -> Service (`AuthService.login`) -> `HttpClient` -> `proxy.conf.json` -> Backend Express (`/api/auth/login`) -> Requête MongoDB (`User.findOne`) -> Hash bcrypt -> Signature JWT -> Réponse HTTP -> Stockage `localStorage` + Signal -> Redirection via `Router`.
@@ -70,7 +70,7 @@ Compléter l'ensemble du flux d'authentification et de gestion de profil : valid
 5. Automatiser le chargement du profil dans `ProfilePageComponent` via le hook `ngOnInit()` et permettre la modification du nom avec retour utilisateur.
 6. Vérifier la compilation et le build Angular avec `npm run build`.
 
-### 4. Vérifications réalisées par le binôme
+### 4. Vérifications réalisées par l'étudiant
 - Test de la validation des formulaires : vérification de l'affichage des messages d'erreur lorsque l'email est mal formé ou le mot de passe inférieur à 8 caractères.
 - Vérification que le token JWT n'apparaît dans aucun `console.log` du code frontend.
 - Test de persistance : vérification que le rechargement de la page conserve l'état d'authentification grâce à la lecture initiale du `localStorage`.
@@ -97,7 +97,7 @@ Compléter l'ensemble du flux d'authentification et de gestion de profil : valid
 * Capture réseau de l'authentification :
   ![Preuve Network Authentification](images/tp1/tp1-auth.png)
 
-### 8. Ce que chaque membre du binôme sait maintenant expliquer sans l'agent
+### 8. Ce que je sais maintenant expliquer sans l'agent
 * **Formulaires réactifs vs formulaires template-driven :** Savoir expliquer pourquoi `FormGroup` et `FormControl` permettent un contrôle programmatique rigoureux et des tests unitaires simplifiés.
 * **Gestion du cycle de vie avec `ngOnInit` :** Savoir pourquoi les appels asynchrones d'initialisation de données (comme `GET /api/users/me`) sont placés dans `ngOnInit` plutôt que dans le constructeur.
 * **Différence entre Signal et `localStorage` :** Savoir expliquer la distinction entre la mémoire vive réactive d'Angular et la persistance sur disque du navigateur.
@@ -121,7 +121,7 @@ Implémenter la consultation réactive de la bibliothèque audio en pagination s
 3. Concevoir le template HTML avec `@for` pour itérer sur les morceaux, `@empty` pour l'état vide et des boutons de pagination bornés.
 4. Styliser les éléments sous forme de cards responsives et accessibles avec métadonnées claires.
 
-### 4. Vérifications réalisées par le binôme
+### 4. Vérifications réalisées par l'étudiant
 - Test des bornes : vérification que le bouton « Précédent » est désactivé quand `page === 1` et « Suivant » quand `page === pages`.
 - Vérification dans l'onglet Network que chaque changement de page déclenche une requête `GET /api/tracks?page=X&limit=5`.
 - Vérification que la liste se met à jour immédiatement sans rechargement de la page.
@@ -142,7 +142,7 @@ Implémenter la consultation réactive de la bibliothèque audio en pagination s
 * Capture réseau de la pagination :
   ![Preuve Pagination](images/tp2/tp2-pagination.png)
 
-### 8. Ce que chaque membre du binôme sait maintenant expliquer sans l'agent
+### 8. Ce que je sais maintenant expliquer sans l'agent
 * **Pourquoi la pagination serveur est supérieure au découpage frontend :** Économie drastique de mémoire vive et de bande passante réseau pour les catalogues volumineux.
 * **Fonctionnement de `params` avec `HttpClient` :** Comment Angular sérialise les objets de paramètres dans l'URL de requête.
 
@@ -163,7 +163,7 @@ Améliorer le processus de téléversement et de lecture audio : validation pré
 4. Implémenter le hook `ngOnDestroy` pour nettoyer l'URL active à la destruction du composant.
 5. Rédiger les réponses détaillées aux questions de mémoire, buffering et streaming dans `JOURNAL_TP2.md`.
 
-### 4. Vérifications réalisées par le binôme
+### 4. Vérifications réalisées par l'étudiant
 - Test d'upload avec un fichier de plus de 25 Mo : blocage immédiat côté client avec message d'alerte explicite sans envoi de requête HTTP inutile.
 - Test de lecture audio : vérification que la requête `GET /api/tracks/:id/audio` transmet bien le header `Authorization: Bearer <token>` et renvoie le flux audio.
 - Test de destruction du composant : vérification que la révocation d'URL est exécutée sans provoquer d'erreur console.
@@ -184,7 +184,7 @@ Améliorer le processus de téléversement et de lecture audio : validation pré
 * Capture de la lecture audio authentifiée :
   ![Preuve Lecture Audio](images/tp2/tp2-audio.png)
 
-### 8. Ce que chaque membre du binôme sait maintenant expliquer sans l'agent
+### 8. Ce que je sais maintenant expliquer sans l'agent
 * **Pourquoi révoquer une `ObjectURL` :** Éviter les fuites de mémoire vive (RAM) dans le navigateur en libérant le pointeur interne vers le `Blob`.
 * **Pourquoi la validation client ne remplace pas la validation serveur :** L'interface utilisateur protège l'expérience utilisateur, mais seul le serveur garantit la sécurité face à des requêtes forgées.
 * **Différence entre téléchargement complet d'un Blob et streaming serveur :** Savoir expliquer comment Express lit le fichier par blocs (chunks) et pourquoi Angular attend le Blob complet avant de l'injecter dans le player.
@@ -208,7 +208,7 @@ Ajouter une action de suppression sécurisée sur chaque carte de morceau : conf
 4. Intégrer un système de notification Toast léger dans `TracksPageComponent`.
 5. Reculer d'une page si le dernier élément de la page $N$ ($N > 1$) est supprimé.
 
-### 4. Vérifications réalisées par le binôme
+### 4. Vérifications réalisées par l'étudiant
 - Test d'annulation : clic sur « Annuler » dans la boîte de confirmation -> aucune requête HTTP n'est envoyée.
 - Test de validation : confirmation -> le bouton affiche l'état de suppression, la requête `DELETE /api/tracks/:id` part avec le header JWT, le toast vert confirme l'action et la liste se rafraîchit.
 - Vérification que la suppression du morceau en cours de lecture coupe immédiatement le lecteur audio et révoque son URL.
@@ -228,7 +228,7 @@ Ajouter une action de suppression sécurisée sur chaque carte de morceau : conf
 * Capture réseau de la suppression :
   ![Preuve Suppression Piste](images/tp3/tp3-delete.png)
 
-### 8. Ce que chaque membre du binôme sait maintenant expliquer sans l'agent
+### 8. Ce que je sais maintenant expliquer sans l'agent
 * **Sécurité backend de la suppression :** Savoir expliquer pourquoi seule la clause `{ _id: id, ownerId: req.auth.sub }` côté Express garantit qu'un utilisateur ne peut pas supprimer la ressource d'un autre.
 
 ---
@@ -247,7 +247,7 @@ Enrichir le téléversement de fichiers audio pour suivre et afficher en temps r
 3. Ajouter une barre de progression visuelle dans `tracks-page.html` et désactiver les champs de saisie pendant l'envoi.
 4. Remettre à zéro et masquer la barre une fois la réponse reçue.
 
-### 4. Vérifications réalisées par le binôme
+### 4. Vérifications réalisées par l'étudiant
 - Test d'upload : observation de la progression fluide de 0% à 100%.
 - Vérification que le bouton est désactivé et affiche le pourcentage durant l'envoi.
 - Vérification qu'aucune information confidentielle (mot de passe, JWT) n'est affichée dans la console.
@@ -267,7 +267,7 @@ Enrichir le téléversement de fichiers audio pour suivre et afficher en temps r
 * Capture de la progression d'upload :
   ![Preuve Progression Upload](images/tp3/tp3-progress.png)
 
-### 8. Ce que chaque membre du binôme sait maintenant expliquer sans l'agent
+### 8. Ce que je sais maintenant expliquer sans l'agent
 * **Différence entre réponse unique et flux d'événements :** Savoir expliquer la différence entre une requête HTTP classique et une requête observant les événements de transfert réseau.
 
 ---
@@ -287,13 +287,13 @@ Mettre en place une suite de tests unitaires automatisés pour le frontend avec 
 4. Écrire les tests unitaires pour `authInterceptor` (`auth.interceptor.spec.ts`).
 5. Exécuter `npm test` et `npm run build`.
 
-### 4. Vérifications réalisées par le binôme
+### 4. Vérifications réalisées par l'étudiant
 - Exécution de `npm test` : 6 tests exécutés et 6 tests validés avec succès en 1.39s.
 - Exécution de `npm run build` : compilation AOT et génération du bundle sans aucune erreur.
 - Vérification que `httpMock.verify()` garantit qu'aucune requête inattendue n'est restée ouverte.
 
 ### 5. Erreurs ou propositions rejetées
-- **Correction de la configuration Vitest :** Le runner réclamait un environnement DOM non-navigateur (`happy-dom`) et des cibles de build valides. Nous avons installé `happy-dom` et complété `angular.json` et `tsconfig.spec.json`.
+- **Correction de la configuration Vitest :** Le runner réclamait un environnement DOM non-navigateur (`happy-dom`) et des cibles de build valides. J'ai installé `happy-dom` et complété `angular.json` et `tsconfig.spec.json`.
 
 ### 6. Fichiers effectivement modifiés / consultés
 * `frontend-starter/angular.json`
@@ -310,6 +310,6 @@ Mettre en place une suite de tests unitaires automatisés pour le frontend avec 
 * Capture d'exécution des tests automatisés :
   ![Preuve Tests Vitest](images/tp3/tp3-tests.png)
 
-### 8. Ce que chaque membre du binôme sait maintenant expliquer sans l'agent
+### 8. Ce que je sais maintenant expliquer sans l'agent
 * **Fonctionnement de `HttpTestingController` :** Savoir expliquer comment `expectOne` intercepte la requête émise par le service et comment `req.flush(data)` simule la réponse HTTP du serveur.
 * **Différence entre test unitaire et test d'intégration :** Savoir expliciter pourquoi les tests unitaires isolent la logique métier sans faire d'appels réseau réels.
